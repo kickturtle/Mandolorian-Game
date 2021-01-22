@@ -1,6 +1,6 @@
 import pygame
 import sys
-'''меняю на свой'''
+'''меняю на свой 2'''
 
 
 class Camera:
