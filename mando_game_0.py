@@ -177,7 +177,7 @@ all_sprites = pygame.sprite.Group()
 tiles_group = pygame.sprite.Group()
 player_group = pygame.sprite.Group()
 intro()
-player = create_level('level.txt')
+player = create_level('dimka_manda_bolyshaya.txt')
 while True:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
