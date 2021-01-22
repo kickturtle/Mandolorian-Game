@@ -82,9 +82,6 @@ class Tile(pygame.sprite.Sprite):
         self.rect.y = y * tile_height
 
 
-'''class Bullet(pygame.sprite.Sprite):'''
-
-
 class Player(pygame.sprite.Sprite):
     player_image = pygame.image.load('data/pix_mando_100.png')
 
