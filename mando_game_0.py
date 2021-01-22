@@ -1,6 +1,7 @@
 import pygame
 import sys
-
+'''меняю на свой 2'''
+#димка
 
 class Camera:
     def __init__(self):
