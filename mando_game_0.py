@@ -1,7 +1,6 @@
 import pygame
 import sys
-'''меняю на свой 2'''
-#димка
+
 
 class Camera:
     def __init__(self):
@@ -104,8 +103,7 @@ class Player(pygame.sprite.Sprite):
             self.y -= 1
             self.rect.y -= tile_height
         if keys[pygame.K_s] and self.y != len(self.level) - 1 and (self.level[self.y + 1][self.x] == 'O' or
-                                                                      self.level[self.y + 1][self.x] == '%' or
-                                                                      self.level[self.y + 1][self.x] == ','):
+                                                                      self.level[self.y + 1][self.x] == '%'):
             self.y += 1
             self.rect.y += tile_height
         if keys[pygame.K_a] and self.x != 0 and (self.level[self.y][self.x - 1] == "." or
@@ -178,7 +176,7 @@ all_sprites = pygame.sprite.Group()
 tiles_group = pygame.sprite.Group()
 player_group = pygame.sprite.Group()
 intro()
-player = create_level('level.txt')
+player = create_level('dimka_manda_bolyshaya.txt')
 while True:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
