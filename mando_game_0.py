@@ -1,7 +1,6 @@
 import pygame
 import sys
-'''меняю на свой 2'''
-#димка
+
 
 class Camera:
     def __init__(self):
@@ -104,8 +103,7 @@ class Player(pygame.sprite.Sprite):
             self.y -= 1
             self.rect.y -= tile_height
         if keys[pygame.K_s] and self.y != len(self.level) - 1 and (self.level[self.y + 1][self.x] == 'O' or
-                                                                      self.level[self.y + 1][self.x] == '%' or
-                                                                      self.level[self.y + 1][self.x] == ','):
+                                                                      self.level[self.y + 1][self.x] == '%'):
             self.y += 1
             self.rect.y += tile_height
         if keys[pygame.K_a] and self.x != 0 and (self.level[self.y][self.x - 1] == "." or
