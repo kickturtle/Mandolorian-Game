@@ -1,6 +1,6 @@
 import pygame
 import sys
-
+#ВНИМАНИЕ
 
 class Camera:
     def __init__(self):
@@ -82,6 +82,24 @@ class Tile(pygame.sprite.Sprite):
         self.rect.y = y * tile_height
 
 
+class BulletPlayer(pygame.sprite.Sprite):
+    bulletimage = pygame.image.load('data/rsz_2unnamed.png')
+
+    def __init__(self, x, y, facing):
+        super().__init__(all_sprites, bullets_group)
+        self.image = BulletPlayer.bulletimage
+        self.rect = self.image.get_rect()
+        self.x = x
+        self.y = y
+        self.rect.x = self.x
+        self.rect.y = self.y
+        self.facing = facing
+        self.speed = 30 * self.facing
+
+    def update(self):
+        self.rect = self.rect.move(self.speed, 0)
+
+
 class Player(pygame.sprite.Sprite):
     player_image = pygame.image.load('data/pix_mando_100.png')
 
@@ -99,31 +117,35 @@ class Player(pygame.sprite.Sprite):
     def update(self):
         keys = pygame.key.get_pressed()
         if keys[pygame.K_w] and self.y != 0 and (self.level[self.y - 1][self.x] == 'O' or
-                                                  self.level[self.y - 1][self.x] == ','):
+                                                 self.level[self.y - 1][self.x] == ','):
             self.y -= 1
             self.rect.y -= tile_height
         if keys[pygame.K_s] and self.y != len(self.level) - 1 and (self.level[self.y + 1][self.x] == 'O' or
-                                                                      self.level[self.y + 1][self.x] == '%'):
+                                                                   self.level[self.y + 1][self.x] == '%'):
             self.y += 1
             self.rect.y += tile_height
         if keys[pygame.K_a] and self.x != 0 and (self.level[self.y][self.x - 1] == "." or
-                                                    self.level[self.y][self.x - 1] == "," or
-                                                    self.level[self.y][self.x - 1] == '%' or
-                                                    self.level[self.y][self.x - 1] == "P"):
+                                                 self.level[self.y][self.x - 1] == "," or
+                                                 self.level[self.y][self.x - 1] == '%' or
+                                                 self.level[self.y][self.x - 1] == "P"):
             if self.image_look == 'to right':
                 self.image = pygame.transform.flip(self.image, True, False)
                 self.image_look = 'to left'
             self.x -= 1
             self.rect.x -= tile_width
         if keys[pygame.K_d] and self.x != len(self.level[0]) - 1 and (self.level[self.y][self.x + 1] == "." or
-                                                                          self.level[self.y][self.x + 1] == "," or
-                                                                          self.level[self.y][self.x + 1] == '%' or
-                                                                          self.level[self.y][self.x + 1] == "P"):
+                                                                      self.level[self.y][self.x + 1] == "," or
+                                                                      self.level[self.y][self.x + 1] == '%' or
+                                                                      self.level[self.y][self.x + 1] == "P"):
             if self.image_look == 'to left':
                 self.image = pygame.transform.flip(self.image, True, False)
                 self.image_look = 'to right'
             self.x += 1
             self.rect.x += tile_width
+
+
+#    def shoot(self):
+#        bullet = BulletPlayer(Player.x + tile_width, Player.y + (tile_height // 2), "red", 1)
 
 
 def create_level(filename):
@@ -175,19 +197,26 @@ camera = Camera()
 all_sprites = pygame.sprite.Group()
 tiles_group = pygame.sprite.Group()
 player_group = pygame.sprite.Group()
+bullets_group = pygame.sprite.Group()
 intro()
 player = create_level('dimka_manda_bolyshaya.txt')
 while True:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             ending()
-    player_group.update()
-    camera.update(player)
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if player.image_look == 'to right':
+                bullet = BulletPlayer(player.rect.x + 50, player.rect.y, 1)
+            elif player.image_look == 'to left':
+                bullet = BulletPlayer(player.rect.x-100, player.rect.y, -1)
     for sprite in all_sprites:
         camera.apply(sprite)
     screen.fill('black')
     tiles_group.draw(screen)
     player_group.draw(screen)
+    bullets_group.draw(screen)
+    player_group.update()
+    bullets_group.update()
+    camera.update(player)
     pygame.display.flip()
     clock.tick(FPS)
-ending()
