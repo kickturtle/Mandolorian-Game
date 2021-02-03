@@ -1,6 +1,6 @@
 import pygame
 import sys
-#ВНИМАНИЕ
+
 
 class Camera:
     def __init__(self):
@@ -75,8 +75,12 @@ class Tile(pygame.sprite.Sprite):
                    'hole': pygame.image.load('data/map_things_hole.jpg')}
 
     def __init__(self, tile_type, x, y):
-        super().__init__(all_sprites, tiles_group)
+        if tile_type in ['floor', 'lukefloor', 'lukewall']:
+            super().__init__(all_sprites, tiles_group, floors_group)
+        else:
+            super().__init__(all_sprites, tiles_group, walls_group)
         self.image = Tile.tile_images[tile_type]
+        self.tile = tile_type
         self.rect = self.image.get_rect()
         self.rect.x = x * tile_width
         self.rect.y = y * tile_height
@@ -94,14 +98,17 @@ class BulletPlayer(pygame.sprite.Sprite):
         self.rect.x = self.x
         self.rect.y = self.y
         self.facing = facing
-        self.speed = 30 * self.facing
+        self.speed = 110 * self.facing
+        self.index = 0
 
     def update(self):
         self.rect = self.rect.move(self.speed, 0)
+        if pygame.sprite.spritecollideany(self, walls_group):
+            del BULLETSONSCREEN[self.index]
 
 
 class Player(pygame.sprite.Sprite):
-    player_image = pygame.image.load('data/pix_mando_100.png')
+    player_image = pygame.image.load('data/sprite_mando_00.png')
 
     def __init__(self, level, x, y):
         super().__init__(all_sprites, player_group)
@@ -143,9 +150,12 @@ class Player(pygame.sprite.Sprite):
             self.x += 1
             self.rect.x += tile_width
 
-
-#    def shoot(self):
-#        bullet = BulletPlayer(Player.x + tile_width, Player.y + (tile_height // 2), "red", 1)
+    def shoot(self):
+        if self.image_look == 'to right':
+            bullet = BulletPlayer(self.rect.x + 50, self.rect.y, 1)
+        elif self.image_look == 'to left':
+            bullet = BulletPlayer(self.rect.x - 100, self.rect.y, -1)
+        bullet.index = len(BULLETSONSCREEN) - 1
 
 
 def create_level(filename):
@@ -193,22 +203,24 @@ screen = pygame.display.set_mode(size)
 pygame.display.set_caption('Mandalorian')
 clock = pygame.time.Clock()
 FPS = 10
+BULLETSONSCREEN = []
 camera = Camera()
 all_sprites = pygame.sprite.Group()
 tiles_group = pygame.sprite.Group()
+walls_group = pygame.sprite.Group()
+floors_group = pygame.sprite.Group()
 player_group = pygame.sprite.Group()
 bullets_group = pygame.sprite.Group()
 intro()
-player = create_level('dimka_manda_bolyshaya.txt')
+player = create_level('level.txt')
 while True:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             ending()
         if event.type == pygame.MOUSEBUTTONDOWN:
-            if player.image_look == 'to right':
-                bullet = BulletPlayer(player.rect.x + 50, player.rect.y, 1)
-            elif player.image_look == 'to left':
-                bullet = BulletPlayer(player.rect.x-100, player.rect.y, -1)
+            BULLETSONSCREEN.append(1)
+            print(BULLETSONSCREEN)
+            player.shoot()
     for sprite in all_sprites:
         camera.apply(sprite)
     screen.fill('black')
