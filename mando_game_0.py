@@ -1,6 +1,9 @@
-import pygame
 import sys
 
+import pygame
+
+
+# ку
 
 class Camera:
     def __init__(self):
@@ -98,17 +101,17 @@ class BulletPlayer(pygame.sprite.Sprite):
         self.rect.x = self.x
         self.rect.y = self.y
         self.facing = facing
-        self.speed = 110 * self.facing
+        self.speed = 60 * self.facing
         self.index = 0
 
     def update(self):
         self.rect = self.rect.move(self.speed, 0)
         if pygame.sprite.spritecollideany(self, walls_group):
-            del BULLETSONSCREEN[self.index]
+            pygame.sprite.Sprite.remove(self, bullets_group)
 
 
 class Player(pygame.sprite.Sprite):
-    player_image = pygame.image.load('data/sprite_mando_00.png')
+    player_image = pygame.image.load('data/pix_mando_100.png')
 
     def __init__(self, level, x, y):
         super().__init__(all_sprites, player_group)
@@ -155,7 +158,18 @@ class Player(pygame.sprite.Sprite):
             bullet = BulletPlayer(self.rect.x + 50, self.rect.y, 1)
         elif self.image_look == 'to left':
             bullet = BulletPlayer(self.rect.x - 100, self.rect.y, -1)
-        bullet.index = len(BULLETSONSCREEN) - 1
+
+
+'''class Enemy(pygame.sprite.Sprite):
+    enemy_image = pygame.image.load('data/zhirinovski.jpg')
+
+    def __init__(self, level, x, y):
+        super().__init__(all_sprites, enemy_group)
+        self.x = x
+        self.y = y
+        self.level = level
+        self.image = Enemy.enemy_image
+        self.image_look = 'to left'''''
 
 
 def create_level(filename):
@@ -203,7 +217,6 @@ screen = pygame.display.set_mode(size)
 pygame.display.set_caption('Mandalorian')
 clock = pygame.time.Clock()
 FPS = 10
-BULLETSONSCREEN = []
 camera = Camera()
 all_sprites = pygame.sprite.Group()
 tiles_group = pygame.sprite.Group()
@@ -211,6 +224,7 @@ walls_group = pygame.sprite.Group()
 floors_group = pygame.sprite.Group()
 player_group = pygame.sprite.Group()
 bullets_group = pygame.sprite.Group()
+enemy_group = pygame.sprite.Group()
 intro()
 player = create_level('level.txt')
 while True:
@@ -218,8 +232,6 @@ while True:
         if event.type == pygame.QUIT:
             ending()
         if event.type == pygame.MOUSEBUTTONDOWN:
-            BULLETSONSCREEN.append(1)
-            print(BULLETSONSCREEN)
             player.shoot()
     for sprite in all_sprites:
         camera.apply(sprite)
