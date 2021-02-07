@@ -111,7 +111,7 @@ class BulletPlayer(pygame.sprite.Sprite):
 
 
 class Player(pygame.sprite.Sprite):
-    player_image = pygame.image.load('data/pix_mando_100.png')
+    player_image = pygame.image.load('data/mando_00.png')
 
     def __init__(self, level, x, y):
         super().__init__(all_sprites, player_group)
