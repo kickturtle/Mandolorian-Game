@@ -63,19 +63,19 @@ def load_level(filename):
 
 
 class Tile(pygame.sprite.Sprite):
-    tile_images = {'floor': pygame.image.load('data/map_things_floor.jpg'),
-                   'lukefloor': pygame.image.load('data/map_things_floor with luke.png'),
-                   'wallblock': pygame.image.load('data/map_things_wall_block.png'),
-                   'wallH': pygame.image.load('data/map_things_wall_H.jpg'),
-                   'wall_': pygame.image.load('data/map_things_wall__.jpg'),
-                   'wall]': pygame.image.load('data/map_things_wall_].jpg'),
-                   'wall[': pygame.image.load('data/map_things_wall_[.jpg'),
-                   'wallcornl': pygame.image.load('data/map_things_wall_cornleft.jpg'),
-                   'wallcornr': pygame.image.load('data/map_things_wall_cornright.jpg'),
-                   'wallupcornl': pygame.image.load('data/map_things_wall_upcornleft.jpg'),
-                   'wallupcornr': pygame.image.load('data/map_things_wall_upcornright.jpg'),
-                   'lukewall': pygame.image.load('data/map_things_wall with luke.jpg'),
-                   'hole': pygame.image.load('data/map_things_hole.jpg')}
+    tile_images = {'floor': pygame.image.load('data/map_things_10.png'),
+                   'lukefloor': pygame.image.load('data/map_things_12.png'),
+                   'wallblock': pygame.image.load('data/map_things_01.png'),
+                   'wallH': pygame.image.load('data/map_things_03.png'),
+                   'wall_': pygame.image.load('data/map_things_02.png'),
+                   'wall]': pygame.image.load('data/map_things_08.png'),
+                   'wall[': pygame.image.load('data/map_things_09.png'),
+                   'wallcornl': pygame.image.load('data/map_things_07.png'),
+                   'wallcornr': pygame.image.load('data/map_things_04.png'),
+                   'wallupcornl': pygame.image.load('data/map_things_06.png'),
+                   'wallupcornr': pygame.image.load('data/map_things_05.png'),
+                   'lukewall': pygame.image.load('data/map_things_11.png'),
+                   'hole': pygame.image.load('data/map_things_00.png')}
 
     def __init__(self, tile_type, x, y):
         if tile_type in ['floor', 'lukefloor', 'lukewall']:
@@ -83,6 +83,7 @@ class Tile(pygame.sprite.Sprite):
         else:
             super().__init__(all_sprites, tiles_group, walls_group)
         self.image = Tile.tile_images[tile_type]
+        self.image = pygame.transform.scale(self.image, (100, 100))
         self.tile = tile_type
         self.rect = self.image.get_rect()
         self.rect.x = x * tile_width
@@ -121,8 +122,9 @@ class Player(pygame.sprite.Sprite):
         self.image = Player.player_image
         self.image_look = 'to right'
         self.rect = self.image.get_rect()
-        self.rect.x = x * tile_width + (tile_width - self.rect.width) // 2
-        self.rect.y = y * tile_height + (tile_width - self.rect.height) // 2
+        self.rect.x = x * tile_width
+        self.rect.y = y * tile_height
+        self.spriteindex = 0
 
     def update(self):
         keys = pygame.key.get_pressed()
@@ -134,29 +136,42 @@ class Player(pygame.sprite.Sprite):
                                                                    self.level[self.y + 1][self.x] == '%'):
             self.y += 1
             self.rect.y += tile_height
-        if keys[pygame.K_a] and self.x != 0 and (self.level[self.y][self.x - 1] == "." or
-                                                 self.level[self.y][self.x - 1] == "," or
-                                                 self.level[self.y][self.x - 1] == '%' or
-                                                 self.level[self.y][self.x - 1] == "P"):
-            if self.image_look == 'to right':
+        if keys[pygame.K_a] and self.x != 0 and self.level[self.y][self.x] != 'O' and \
+                (self.level[self.y][self.x - 1] == "." or
+                 self.level[self.y][self.x - 1] == "," or
+                 self.level[self.y][self.x - 1] == '%' or
+                 self.level[self.y][self.x - 1] == "P"):
+            iters = 0
+            while iters != 5:
+                self.image = pygame.image.load(MANDO_MOVE_SPRITES[self.spriteindex])
                 self.image = pygame.transform.flip(self.image, True, False)
-                self.image_look = 'to left'
+                self.spriteindex = (self.spriteindex + 1) % 4
+                self.rect.x -= (tile_width // 4)
+                iters += 1
             self.x -= 1
-            self.rect.x -= tile_width
-        if keys[pygame.K_d] and self.x != len(self.level[0]) - 1 and (self.level[self.y][self.x + 1] == "." or
-                                                                      self.level[self.y][self.x + 1] == "," or
-                                                                      self.level[self.y][self.x + 1] == '%' or
-                                                                      self.level[self.y][self.x + 1] == "P"):
-            if self.image_look == 'to left':
-                self.image = pygame.transform.flip(self.image, True, False)
-                self.image_look = 'to right'
+            self.image_look = 'to left'
+        if keys[pygame.K_d] and self.x != len(self.level[0]) - 1 and self.level[self.y][self.x] != 'O' and \
+                (self.level[self.y][self.x + 1] == "." or
+                 self.level[self.y][self.x + 1] == "," or
+                 self.level[self.y][self.x + 1] == '%' or
+                 self.level[self.y][self.x + 1] == "P"):
+            iters = 0
+            while iters != 5:
+                self.image = pygame.image.load(MANDO_MOVE_SPRITES[self.spriteindex])
+                if self.image_look == 'to left':
+                    self.image = pygame.transform.flip(self.image, True, False)
+                self.spriteindex = (self.spriteindex + 1) % 4
+                self.rect.x += (tile_width // 4)
+                iters += 1
             self.x += 1
-            self.rect.x += tile_width
+            self.image_look = 'to right'
 
     def shoot(self):
         if self.image_look == 'to right':
+            self.image = pygame.image.load('data/mando_02.png')
             bullet = BulletPlayer(self.rect.x + 50, self.rect.y, 1)
         elif self.image_look == 'to left':
+            self.image = pygame.transform.flip(pygame.image.load('data/mando_02.png'), True, False)
             bullet = BulletPlayer(self.rect.x - 100, self.rect.y, -1)
 
 
@@ -225,6 +240,7 @@ floors_group = pygame.sprite.Group()
 player_group = pygame.sprite.Group()
 bullets_group = pygame.sprite.Group()
 enemy_group = pygame.sprite.Group()
+MANDO_MOVE_SPRITES = ['data/mando_00.png', 'data/mando_04.png', 'data/mando_05.png', 'data/mando_06.png']
 intro()
 player = create_level('level.txt')
 while True:
