@@ -141,13 +141,10 @@ class Player(pygame.sprite.Sprite):
                  self.level[self.y][self.x - 1] == "," or
                  self.level[self.y][self.x - 1] == '%' or
                  self.level[self.y][self.x - 1] == "P"):
-            iters = 0
-            while iters != 5:
-                self.image = pygame.image.load(MANDO_MOVE_SPRITES[self.spriteindex])
-                self.image = pygame.transform.flip(self.image, True, False)
-                self.spriteindex = (self.spriteindex + 1) % 4
-                self.rect.x -= (tile_width // 4)
-                iters += 1
+            self.image = pygame.image.load(MANDO_MOVE_SPRITES[(self.spriteindex + 1) % 4])
+            self.image = pygame.transform.flip(self.image, True, False)
+            self.spriteindex = (self.spriteindex + 1) % 4
+            self.rect.x -= tile_width
             self.x -= 1
             self.image_look = 'to left'
         if keys[pygame.K_d] and self.x != len(self.level[0]) - 1 and self.level[self.y][self.x] != 'O' and \
@@ -155,14 +152,11 @@ class Player(pygame.sprite.Sprite):
                  self.level[self.y][self.x + 1] == "," or
                  self.level[self.y][self.x + 1] == '%' or
                  self.level[self.y][self.x + 1] == "P"):
-            iters = 0
-            while iters != 5:
-                self.image = pygame.image.load(MANDO_MOVE_SPRITES[self.spriteindex])
-                if self.image_look == 'to left':
-                    self.image = pygame.transform.flip(self.image, True, False)
-                self.spriteindex = (self.spriteindex + 1) % 4
-                self.rect.x += (tile_width // 4)
-                iters += 1
+            self.image = pygame.image.load(MANDO_MOVE_SPRITES[self.spriteindex])
+            if self.image_look == 'to left':
+                self.image = pygame.transform.flip(self.image, True, False)
+            self.spriteindex = (self.spriteindex + 1) % 4
+            self.rect.x += tile_width
             self.x += 1
             self.image_look = 'to right'
 
