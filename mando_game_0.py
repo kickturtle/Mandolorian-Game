@@ -3,8 +3,6 @@ import sys
 import pygame
 
 
-# ку
-
 class Camera:
     def __init__(self):
         self.dx = 0
@@ -31,8 +29,8 @@ def intro():
     intro_screen = pygame.transform.scale(intro_screen, (width, height))
     screen.blit(intro_screen, (0, 0))
     font = pygame.font.Font(None, 100)
-    game_text = font.render('Play!', False, "black")
-    exit_text = font.render('Exit', False, "black")
+    game_text = font.render('Play!', True, '#AF9898', '#594A51')
+    exit_text = font.render('Exit', True, '#AF9898', '#594A51')
     screen.blit(game_text, (170, 400))
     screen.blit(exit_text, (1000, 400))
     game_text_rect = game_text.get_rect()
@@ -41,7 +39,6 @@ def intro():
     exit_text_rect = exit_text.get_rect()
     exit_text_rect.x = 1000
     exit_text_rect.y = 400
-
     pygame.display.flip()
     while True:
         for event in pygame.event.get():
@@ -55,7 +52,7 @@ def intro():
 
 
 def load_level(filename):
-    with open('data/' + filename) as file:
+    with open('data/levels/' + filename) as file:
         level = list(map(str.strip, file))
         max_len = len(max(level, key=len))
         level = list(map(lambda line: line.ljust(max_len, "."), level))
@@ -130,10 +127,16 @@ class Player(pygame.sprite.Sprite):
         keys = pygame.key.get_pressed()
         if keys[pygame.K_w] and self.y != 0 and (self.level[self.y - 1][self.x] == 'O' or
                                                  self.level[self.y - 1][self.x] == ','):
+            self.image = pygame.image.load('data/mando_12.png')
+            if self.image_look == 'to left':
+                self.image = pygame.transform.flip(self.image, True, False)
             self.y -= 1
             self.rect.y -= tile_height
         if keys[pygame.K_s] and self.y != len(self.level) - 1 and (self.level[self.y + 1][self.x] == 'O' or
                                                                    self.level[self.y + 1][self.x] == '%'):
+            self.image = pygame.image.load('data/mando_12.png')
+            if self.image_look == 'to left':
+                self.image = pygame.transform.flip(self.image, True, False)
             self.y += 1
             self.rect.y += tile_height
         if keys[pygame.K_a] and self.x != 0 and self.level[self.y][self.x] != 'O' and \
@@ -159,6 +162,11 @@ class Player(pygame.sprite.Sprite):
             self.rect.x += tile_width
             self.x += 1
             self.image_look = 'to right'
+        elif not keys[pygame.K_w] and not keys[pygame.K_s] and not keys[pygame.K_a] and not keys[pygame.K_d]:
+            self.image = pygame.image.load('data/mando_00.png')
+            if self.image_look == 'to left':
+                self.image = pygame.transform.flip(self.image, True, False)
+            self.spriteindex = 0
 
     def shoot(self):
         if self.image_look == 'to right':
@@ -170,7 +178,7 @@ class Player(pygame.sprite.Sprite):
 
 
 '''class Enemy(pygame.sprite.Sprite):
-    enemy_image = pygame.image.load('data/zhirinovski.jpg')
+    enemy_image = pygame.image.load('data/enemysprite.png')
 
     def __init__(self, level, x, y):
         super().__init__(all_sprites, enemy_group)
@@ -178,7 +186,7 @@ class Player(pygame.sprite.Sprite):
         self.y = y
         self.level = level
         self.image = Enemy.enemy_image
-        self.image_look = 'to left'''''
+        self.image_look = 'to left'''
 
 
 def create_level(filename):
@@ -218,6 +226,7 @@ def create_level(filename):
     return player
 
 
+LEVEL = f"level{int(input('Введите номер нужного уровня: '))}.txt"
 pygame.init()
 size = width, height = 1400, 800
 tile_width = 100
@@ -235,8 +244,9 @@ player_group = pygame.sprite.Group()
 bullets_group = pygame.sprite.Group()
 enemy_group = pygame.sprite.Group()
 MANDO_MOVE_SPRITES = ['data/mando_00.png', 'data/mando_04.png', 'data/mando_05.png', 'data/mando_06.png']
+#try:
 intro()
-player = create_level('level.txt')
+player = create_level(LEVEL)
 while True:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -254,3 +264,5 @@ while True:
     camera.update(player)
     pygame.display.flip()
     clock.tick(FPS)
+#except:
+#   ending()
