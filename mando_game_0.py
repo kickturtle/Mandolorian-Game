@@ -177,7 +177,7 @@ class Player(pygame.sprite.Sprite):
             bullet = BulletPlayer(self.rect.x - 100, self.rect.y, -1)
 
 
-'''class Enemy(pygame.sprite.Sprite):
+class Enemy(pygame.sprite.Sprite):
     enemy_image = pygame.image.load('data/enemysprite.png')
 
     def __init__(self, level, x, y):
@@ -186,11 +186,17 @@ class Player(pygame.sprite.Sprite):
         self.y = y
         self.level = level
         self.image = Enemy.enemy_image
-        self.image_look = 'to left'''
+        self.image_look = 'to left'
+        self.rect = self.image.get_rect()
+        self.rect.x = x * tile_width
+        self.rect.y = y * tile_height
+
+    '''def update(self:'''
 
 
 def create_level(filename):
     player = None
+    enemy = None
     level = load_level(filename)
     for y in range(len(level)):
         for x in range(len(level[y])):
@@ -223,6 +229,9 @@ def create_level(filename):
             elif level[y][x] == 'P':
                 Tile('floor', x, y)
                 player = Player(level, x, y)
+            elif level[y][x] == 'E':
+                Tile('floor', x, y)
+                enemy = Enemy(level, x, y)
     return player
 
 
@@ -244,7 +253,7 @@ player_group = pygame.sprite.Group()
 bullets_group = pygame.sprite.Group()
 enemy_group = pygame.sprite.Group()
 MANDO_MOVE_SPRITES = ['data/mando_00.png', 'data/mando_04.png', 'data/mando_05.png', 'data/mando_06.png']
-#try:
+# try:
 intro()
 player = create_level(LEVEL)
 while True:
@@ -259,10 +268,11 @@ while True:
     tiles_group.draw(screen)
     player_group.draw(screen)
     bullets_group.draw(screen)
+    enemy_group.draw(screen)
     player_group.update()
     bullets_group.update()
     camera.update(player)
     pygame.display.flip()
     clock.tick(FPS)
-#except:
+# except:
 #   ending()
