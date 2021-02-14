@@ -143,7 +143,8 @@ class Player(pygame.sprite.Sprite):
                 (self.level[self.y][self.x - 1] == "." or
                  self.level[self.y][self.x - 1] == "," or
                  self.level[self.y][self.x - 1] == '%' or
-                 self.level[self.y][self.x - 1] == "P"):
+                 self.level[self.y][self.x - 1] == "P" or
+                 self.level[self.y][self.x - 1] == 'E'):
             self.image = pygame.image.load(MANDO_MOVE_SPRITES[(self.spriteindex + 1) % 4])
             self.image = pygame.transform.flip(self.image, True, False)
             self.spriteindex = (self.spriteindex + 1) % 4
@@ -154,7 +155,8 @@ class Player(pygame.sprite.Sprite):
                 (self.level[self.y][self.x + 1] == "." or
                  self.level[self.y][self.x + 1] == "," or
                  self.level[self.y][self.x + 1] == '%' or
-                 self.level[self.y][self.x + 1] == "P"):
+                 self.level[self.y][self.x + 1] == "P" or
+                 self.level[self.y][self.x + 1] == 'E'):
             self.image = pygame.image.load(MANDO_MOVE_SPRITES[self.spriteindex])
             if self.image_look == 'to left':
                 self.image = pygame.transform.flip(self.image, True, False)
@@ -190,8 +192,13 @@ class Enemy(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.x = x * tile_width
         self.rect.y = y * tile_height
+        self.v = 10
 
-    '''def update(self:'''
+    def update(self):
+        self.rect = self.rect.move(self.v, 0)
+        if pygame.sprite.spritecollideany(self, walls_group):
+            self.image = pygame.transform.flip(self.image, True, False)
+            self.v = -self.v
 
 
 def create_level(filename):
@@ -269,6 +276,7 @@ while True:
     player_group.draw(screen)
     bullets_group.draw(screen)
     enemy_group.draw(screen)
+    enemy_group.update()
     player_group.update()
     bullets_group.update()
     camera.update(player)
