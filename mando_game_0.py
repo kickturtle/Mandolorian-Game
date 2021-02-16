@@ -122,6 +122,7 @@ class Player(pygame.sprite.Sprite):
         self.rect.x = x * tile_width
         self.rect.y = y * tile_height
         self.spriteindex = 0
+        self.hp = 5
 
     def update(self):
         keys = pygame.key.get_pressed()
@@ -180,7 +181,7 @@ class Player(pygame.sprite.Sprite):
 
 
 class Enemy(pygame.sprite.Sprite):
-    enemy_image = pygame.image.load('data/enemysprite.png')
+    enemy_image = pygame.image.load('data/stormtrooper_tr.png')
 
     def __init__(self, level, x, y):
         super().__init__(all_sprites, enemy_group)
