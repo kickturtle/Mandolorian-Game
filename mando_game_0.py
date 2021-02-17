@@ -101,6 +101,7 @@ class BulletPlayer(pygame.sprite.Sprite):
         self.facing = facing
         self.speed = 60 * self.facing
         self.index = 0
+        self.hp = 5
 
     def update(self):
         self.rect = self.rect.move(self.speed, 0)
@@ -194,12 +195,18 @@ class Enemy(pygame.sprite.Sprite):
         self.rect.x = x * tile_width
         self.rect.y = y * tile_height
         self.v = 10
+        self.hp = 5
 
     def update(self):
         self.rect = self.rect.move(self.v, 0)
         if pygame.sprite.spritecollideany(self, walls_group):
             self.image = pygame.transform.flip(self.image, True, False)
             self.v = -self.v
+        if pygame.sprite.spritecollideany(self, bullets_group):
+            if self.hp == 1:
+                pygame.sprite.Sprite.remove(self, enemy_group)
+            else:
+                self.hp -= 1
 
 
 def create_level(filename):
