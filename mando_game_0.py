@@ -131,12 +131,12 @@ class Player(pygame.sprite.Sprite):
 
     def update(self):
         keys = pygame.key.get_pressed()
-        if pygame.sprite.spritecollideany(self, bullets_group):
-            if self.hp == 1:
-                pygame.sprite.Sprite.remove(self, player_group)
-                ending()
-            else:
-                self.hp -= 1
+        # if pygame.sprite.spritecollideany(self, bullets_group):
+        #   if self.hp == 1:
+        #       pygame.sprite.Sprite.remove(self, player_group)
+        #       ending()
+        #  else:
+        #      self.hp -= 1
         if keys[pygame.K_w] and self.y != 0 and (self.level[self.y - 1][self.x] == 'O' or
                                                  self.level[self.y - 1][self.x] == ','):
             self.image = pygame.image.load('data/mando_12.png')
@@ -200,17 +200,32 @@ class Enemy(pygame.sprite.Sprite):
         self.y = y
         self.level = level
         self.image = Enemy.enemy_image
-        self.image_look = 'to left'
+        self.image_look = 'to right'
+        self.image_look_index = 0
         self.rect = self.image.get_rect()
         self.rect.x = x * tile_width
         self.rect.y = y * tile_height
         self.v = 10
-        self.hp = 2
+        self.hp = 5
+        self.delay = 1
+
+    def shoot(self):
+        if self.image_look == 'to right':
+            bullet = BulletPlayer(self.rect.x + 110, self.rect.y + 37, 1)
+        elif self.image_look == 'to left':
+            bullet = BulletPlayer(self.rect.x - 55, self.rect.y + 37, -1)
 
     def update(self):
+        if self.delay % 15 == 0:
+            self.shoot()
+        self.delay += 1
         self.rect = self.rect.move(self.v, 0)
         if pygame.sprite.spritecollideany(self, walls_group):
             self.image = pygame.transform.flip(self.image, True, False)
+            if self.image_look == 'to left':
+                self.image_look = 'to right'
+            else:
+                self.image_look = 'to left'
             self.v = -self.v
         if pygame.sprite.spritecollideany(self, bullets_group):
             if self.hp == 1:
