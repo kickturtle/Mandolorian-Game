@@ -99,13 +99,17 @@ class BulletPlayer(pygame.sprite.Sprite):
         self.rect.x = self.x
         self.rect.y = self.y
         self.facing = facing
-        self.speed = 60 * self.facing
+        self.speed = 44 * self.facing
         self.index = 0
-        self.hp = 5
+        self.collided = False
 
     def update(self):
         self.rect = self.rect.move(self.speed, 0)
-        if pygame.sprite.spritecollideany(self, walls_group):
+        if self.collided:
+            pygame.sprite.Sprite.remove(self, bullets_group)
+        if pygame.sprite.spritecollideany(self, player_group) or pygame.sprite.spritecollideany(self, enemy_group):
+            self.collided = True
+        elif pygame.sprite.spritecollideany(self, walls_group):
             pygame.sprite.Sprite.remove(self, bullets_group)
 
 
@@ -123,10 +127,16 @@ class Player(pygame.sprite.Sprite):
         self.rect.x = x * tile_width
         self.rect.y = y * tile_height
         self.spriteindex = 0
-        self.hp = 5
+        self.hp = 3
 
     def update(self):
         keys = pygame.key.get_pressed()
+        if pygame.sprite.spritecollideany(self, bullets_group):
+            if self.hp == 1:
+                pygame.sprite.Sprite.remove(self, player_group)
+                ending()
+            else:
+                self.hp -= 1
         if keys[pygame.K_w] and self.y != 0 and (self.level[self.y - 1][self.x] == 'O' or
                                                  self.level[self.y - 1][self.x] == ','):
             self.image = pygame.image.load('data/mando_12.png')
@@ -175,10 +185,10 @@ class Player(pygame.sprite.Sprite):
     def shoot(self):
         if self.image_look == 'to right':
             self.image = pygame.image.load('data/mando_02.png')
-            bullet = BulletPlayer(self.rect.x + 50, self.rect.y, 1)
+            bullet = BulletPlayer(self.rect.x + 100, self.rect.y + 37, 1)
         elif self.image_look == 'to left':
             self.image = pygame.transform.flip(pygame.image.load('data/mando_02.png'), True, False)
-            bullet = BulletPlayer(self.rect.x - 100, self.rect.y, -1)
+            bullet = BulletPlayer(self.rect.x - 45, self.rect.y + 37, -1)
 
 
 class Enemy(pygame.sprite.Sprite):
@@ -195,7 +205,7 @@ class Enemy(pygame.sprite.Sprite):
         self.rect.x = x * tile_width
         self.rect.y = y * tile_height
         self.v = 10
-        self.hp = 5
+        self.hp = 2
 
     def update(self):
         self.rect = self.rect.move(self.v, 0)
@@ -282,8 +292,8 @@ while True:
     screen.fill('black')
     tiles_group.draw(screen)
     player_group.draw(screen)
-    bullets_group.draw(screen)
     enemy_group.draw(screen)
+    bullets_group.draw(screen)
     enemy_group.update()
     player_group.update()
     bullets_group.update()
