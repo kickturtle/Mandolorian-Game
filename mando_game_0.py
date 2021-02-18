@@ -48,6 +48,7 @@ def intro():
                 if exit_text_rect.collidepoint(event.pos):
                     ending()
                 elif game_text_rect.collidepoint(event.pos):
+                    pygame.mixer.music.play()
                     return
 
 
@@ -214,6 +215,7 @@ class Enemy(pygame.sprite.Sprite):
             self.v = -self.v
         if pygame.sprite.spritecollideany(self, bullets_group):
             if self.hp == 1:
+                enemydeathsound.play()
                 pygame.sprite.Sprite.remove(self, enemy_group)
             else:
                 self.hp -= 1
@@ -263,6 +265,9 @@ def create_level(filename):
 LEVEL = f"level{int(input('Введите номер нужного уровня: '))}.txt"
 pygame.init()
 size = width, height = 1400, 800
+shotsound = pygame.mixer.Sound('data/data_sounds/shotsound.mp3')
+enemydeathsound = pygame.mixer.Sound('data/data_sounds/enemydeath.mp3')
+pygame.mixer.music.load('data/data_sounds/backgroundmusic.mp3')
 tile_width = 100
 tile_height = 100
 screen = pygame.display.set_mode(size)
@@ -286,6 +291,7 @@ while True:
         if event.type == pygame.QUIT:
             ending()
         if event.type == pygame.MOUSEBUTTONDOWN:
+            shotsound.play()
             player.shoot()
     for sprite in all_sprites:
         camera.apply(sprite)
