@@ -48,7 +48,6 @@ def intro():
                 if exit_text_rect.collidepoint(event.pos):
                     ending()
                 elif game_text_rect.collidepoint(event.pos):
-                    pygame.mixer.music.play()
                     return
 
 
@@ -132,12 +131,12 @@ class Player(pygame.sprite.Sprite):
 
     def update(self):
         keys = pygame.key.get_pressed()
-        # if pygame.sprite.spritecollideany(self, bullets_group):
-        #   if self.hp == 1:
-        #       pygame.sprite.Sprite.remove(self, player_group)
-        #       ending()
-        #  else:
-        #      self.hp -= 1
+        if pygame.sprite.spritecollideany(self, bullets_group):
+            if self.hp == 1:
+                pygame.sprite.Sprite.remove(self, player_group)
+                ending()
+            else:
+                self.hp -= 1
         if keys[pygame.K_w] and self.y != 0 and (self.level[self.y - 1][self.x] == 'O' or
                                                  self.level[self.y - 1][self.x] == ','):
             self.image = pygame.image.load('data/mando_12.png')
@@ -230,7 +229,6 @@ class Enemy(pygame.sprite.Sprite):
             self.v = -self.v
         if pygame.sprite.spritecollideany(self, bullets_group):
             if self.hp == 1:
-                enemydeathsound.play()
                 pygame.sprite.Sprite.remove(self, enemy_group)
             else:
                 self.hp -= 1
@@ -280,9 +278,6 @@ def create_level(filename):
 LEVEL = f"level{int(input('Введите номер нужного уровня: '))}.txt"
 pygame.init()
 size = width, height = 1400, 800
-shotsound = pygame.mixer.Sound('data/data_sounds/shotsound.mp3')
-enemydeathsound = pygame.mixer.Sound('data/data_sounds/enemydeath.mp3')
-pygame.mixer.music.load('data/data_sounds/backgroundmusic.mp3')
 tile_width = 100
 tile_height = 100
 screen = pygame.display.set_mode(size)
@@ -306,7 +301,6 @@ while True:
         if event.type == pygame.QUIT:
             ending()
         if event.type == pygame.MOUSEBUTTONDOWN:
-            shotsound.play()
             player.shoot()
     for sprite in all_sprites:
         camera.apply(sprite)
