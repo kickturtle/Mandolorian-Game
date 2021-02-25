@@ -146,6 +146,9 @@ class Player(pygame.sprite.Sprite):
             else:
                 self.hp -= 1
             playerdamagesound.play()
+        elif pygame.sprite.spritecollideany(self, yoda_group):
+            #win
+            ending()
         if keys[pygame.K_w] and self.y != 0 and (self.level[self.y - 1][self.x] == 'O' or
                                                  self.level[self.y - 1][self.x] == ','):
             self.image = pygame.image.load('data/mando_12.png')
@@ -165,7 +168,8 @@ class Player(pygame.sprite.Sprite):
                  self.level[self.y][self.x - 1] == "," or
                  self.level[self.y][self.x - 1] == '%' or
                  self.level[self.y][self.x - 1] == "P" or
-                 self.level[self.y][self.x - 1] == 'E'):
+                 self.level[self.y][self.x - 1] == 'E' or
+                 self.level[self.y][self.x - 1] == 'Y'):
             self.image = pygame.image.load(MANDO_MOVE_SPRITES[(self.spriteindex + 1) % 4])
             self.image = pygame.transform.flip(self.image, True, False)
             self.spriteindex = (self.spriteindex + 1) % 4
@@ -177,7 +181,8 @@ class Player(pygame.sprite.Sprite):
                  self.level[self.y][self.x + 1] == "," or
                  self.level[self.y][self.x + 1] == '%' or
                  self.level[self.y][self.x + 1] == "P" or
-                 self.level[self.y][self.x + 1] == 'E'):
+                 self.level[self.y][self.x + 1] == 'E' or
+                 self.level[self.y][self.x + 1] == 'Y'):
             self.image = pygame.image.load(MANDO_MOVE_SPRITES[self.spriteindex])
             if self.image_look == 'to left':
                 self.image = pygame.transform.flip(self.image, True, False)
@@ -247,6 +252,20 @@ class Enemy(pygame.sprite.Sprite):
                 self.hp -= 1
 
 
+class Yoda(pygame.sprite.Sprite):
+    yoda_image = pygame.image.load('data/yoda.png')
+
+    def __init__(self, level, x, y):
+        super().__init__(all_sprites, yoda_group)
+        self.x = x
+        self.y = y
+        self.level = level
+        self.image = Yoda.yoda_image
+        self.rect = self.image.get_rect()
+        self.rect.x = x * tile_width
+        self.rect.y = y * tile_height
+
+
 def create_level(filename):
     player = None
     enemy = None
@@ -285,10 +304,13 @@ def create_level(filename):
             elif level[y][x] == 'E':
                 Tile('floor', x, y)
                 enemy = Enemy(level, x, y)
+            elif level[y][x] == 'Y':
+                Tile('floor', x, y)
+                yoda = Yoda(level, x, y)
     return player
 
 
-LEVEL = f"level{int(input('Введите номер нужного уровня: '))}.txt"
+LEVEL = 1
 pygame.init()
 size = width, height = 1400, 800
 tile_width = 100
@@ -304,6 +326,7 @@ walls_group = pygame.sprite.Group()
 floors_group = pygame.sprite.Group()
 player_group = pygame.sprite.Group()
 bullets_group = pygame.sprite.Group()
+yoda_group = pygame.sprite.Group()
 enemy_bullets_group = pygame.sprite.Group()
 player_bullets_group = pygame.sprite.Group()
 enemy_group = pygame.sprite.Group()
@@ -328,6 +351,7 @@ while True:
     player_group.draw(screen)
     enemy_group.draw(screen)
     bullets_group.draw(screen)
+    yoda_group.draw(screen)
     enemy_group.update()
     player_group.update()
     bullets_group.update()
