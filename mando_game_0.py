@@ -87,12 +87,12 @@ class Tile(pygame.sprite.Sprite):
         self.rect.y = y * tile_height
 
 
-class BulletPlayer(pygame.sprite.Sprite):
+class Bullet(pygame.sprite.Sprite):
     bulletimage = pygame.image.load('data/rsz_2unnamed.png')
 
-    def __init__(self, x, y, facing):
+    def __init__(self, x, y, facing, side):
         super().__init__(all_sprites, bullets_group)
-        self.image = BulletPlayer.bulletimage
+        self.image = Bullet.bulletimage
         self.rect = self.image.get_rect()
         self.x = x
         self.y = y
@@ -102,15 +102,23 @@ class BulletPlayer(pygame.sprite.Sprite):
         self.speed = 44 * self.facing
         self.index = 0
         self.collided = False
+        self.side = side
 
     def update(self):
         self.rect = self.rect.move(self.speed, 0)
         if self.collided:
             pygame.sprite.Sprite.remove(self, bullets_group)
-        if pygame.sprite.spritecollideany(self, player_group) or pygame.sprite.spritecollideany(self, enemy_group):
+            pygame.sprite.Sprite.remove(self, player_bullets_group)
+            pygame.sprite.Sprite.remove(self, enemy_bullets_group)
+        if pygame.sprite.spritecollideany(self, player_group):
             self.collided = True
+        if pygame.sprite.spritecollideany(self, enemy_group):
+            if self.side != 'enemy':
+                self.collided = True
         elif pygame.sprite.spritecollideany(self, walls_group):
             pygame.sprite.Sprite.remove(self, bullets_group)
+            pygame.sprite.Sprite.remove(self, player_bullets_group)
+            pygame.sprite.Sprite.remove(self, enemy_bullets_group)
 
 
 class Player(pygame.sprite.Sprite):
@@ -127,11 +135,11 @@ class Player(pygame.sprite.Sprite):
         self.rect.x = x * tile_width
         self.rect.y = y * tile_height
         self.spriteindex = 0
-        self.hp = 3
+        self.hp = 5
 
     def update(self):
         keys = pygame.key.get_pressed()
-        if pygame.sprite.spritecollideany(self, bullets_group):
+        if pygame.sprite.spritecollideany(self, enemy_bullets_group):
             if self.hp == 1:
                 pygame.sprite.Sprite.remove(self, player_group)
                 ending()
@@ -186,10 +194,11 @@ class Player(pygame.sprite.Sprite):
     def shoot(self):
         if self.image_look == 'to right':
             self.image = pygame.image.load('data/mando_02.png')
-            bullet = BulletPlayer(self.rect.x + 100, self.rect.y + 37, 1)
+            bullet = Bullet(self.rect.x + 100, self.rect.y + 37, 1, 'mando')
         elif self.image_look == 'to left':
             self.image = pygame.transform.flip(pygame.image.load('data/mando_02.png'), True, False)
-            bullet = BulletPlayer(self.rect.x - 45, self.rect.y + 37, -1)
+            bullet = Bullet(self.rect.x - 45, self.rect.y + 37, -1, 'mando')
+        player_bullets_group.add(bullet)
         shotsound.play()
 
 
@@ -208,14 +217,15 @@ class Enemy(pygame.sprite.Sprite):
         self.rect.x = x * tile_width
         self.rect.y = y * tile_height
         self.v = 10
-        self.hp = 5
+        self.hp = 1
         self.delay = 1
 
     def shoot(self):
         if self.image_look == 'to right':
-            bullet = BulletPlayer(self.rect.x + 110, self.rect.y + 37, 1)
+            bullet = Bullet(self.rect.x + 110, self.rect.y + 37, 1, 'enemy')
         elif self.image_look == 'to left':
-            bullet = BulletPlayer(self.rect.x - 55, self.rect.y + 37, -1)
+            bullet = Bullet(self.rect.x - 55, self.rect.y + 37, -1, 'enemy')
+        enemy_bullets_group.add(bullet)
 
     def update(self):
         if self.delay % 15 == 0:
@@ -229,7 +239,7 @@ class Enemy(pygame.sprite.Sprite):
             else:
                 self.image_look = 'to left'
             self.v = -self.v
-        if pygame.sprite.spritecollideany(self, bullets_group):
+        if pygame.sprite.spritecollideany(self, player_bullets_group):
             if self.hp == 1:
                 pygame.sprite.Sprite.remove(self, enemy_group)
                 enemydeathsound.play()
@@ -294,6 +304,8 @@ walls_group = pygame.sprite.Group()
 floors_group = pygame.sprite.Group()
 player_group = pygame.sprite.Group()
 bullets_group = pygame.sprite.Group()
+enemy_bullets_group = pygame.sprite.Group()
+player_bullets_group = pygame.sprite.Group()
 enemy_group = pygame.sprite.Group()
 shotsound = pygame.mixer.Sound('data/data_sounds/shotsound.mp3')
 enemydeathsound = pygame.mixer.Sound('data/data_sounds/enemydeath.mp3')
