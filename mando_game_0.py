@@ -137,6 +137,7 @@ class Player(pygame.sprite.Sprite):
                 ending()
             else:
                 self.hp -= 1
+            playerdamagesound.play()
         if keys[pygame.K_w] and self.y != 0 and (self.level[self.y - 1][self.x] == 'O' or
                                                  self.level[self.y - 1][self.x] == ','):
             self.image = pygame.image.load('data/mando_12.png')
@@ -189,6 +190,7 @@ class Player(pygame.sprite.Sprite):
         elif self.image_look == 'to left':
             self.image = pygame.transform.flip(pygame.image.load('data/mando_02.png'), True, False)
             bullet = BulletPlayer(self.rect.x - 45, self.rect.y + 37, -1)
+        shotsound.play()
 
 
 class Enemy(pygame.sprite.Sprite):
@@ -230,6 +232,7 @@ class Enemy(pygame.sprite.Sprite):
         if pygame.sprite.spritecollideany(self, bullets_group):
             if self.hp == 1:
                 pygame.sprite.Sprite.remove(self, enemy_group)
+                enemydeathsound.play()
             else:
                 self.hp -= 1
 
@@ -292,6 +295,10 @@ floors_group = pygame.sprite.Group()
 player_group = pygame.sprite.Group()
 bullets_group = pygame.sprite.Group()
 enemy_group = pygame.sprite.Group()
+shotsound = pygame.mixer.Sound('data/data_sounds/shotsound.mp3')
+enemydeathsound = pygame.mixer.Sound('data/data_sounds/enemydeath.mp3')
+playerdamagesound = pygame.mixer.Sound('data/data_sounds/mandodeath.mp3')
+pygame.mixer.music.load('data/data_sounds/backgroundmusic.mp3')
 MANDO_MOVE_SPRITES = ['data/mando_00.png', 'data/mando_04.png', 'data/mando_05.png', 'data/mando_06.png']
 # try:
 intro()
@@ -315,5 +322,5 @@ while True:
     camera.update(player)
     pygame.display.flip()
     clock.tick(FPS)
-# except:
-#   ending()
+#except:
+#    ending()
