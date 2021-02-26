@@ -176,14 +176,14 @@ class Player(pygame.sprite.Sprite):
             if self.hp == 1:
                 pygame.sprite.Sprite.remove(self, player_group)
                 Game_over(all_sprites, game_over)
-                pygame.mixer.music.stop()
+                pygame.mixer.music.pause()
             else:
                 self.hp -= 1
             playerdamagesound.play()
         elif pygame.sprite.spritecollideany(self, yoda_group):
             pygame.sprite.Sprite.remove(self, player_group)
             Win(all_sprites, win)
-            pygame.mixer.music.stop()
+            pygame.mixer.music.pause()
         if keys[pygame.K_w] and self.y != 0 and (self.level[self.y - 1][self.x] == 'O' or
                                                  self.level[self.y - 1][self.x] == ','):
             self.image = pygame.image.load('data/mando_12.png')
