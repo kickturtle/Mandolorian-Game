@@ -24,6 +24,22 @@ def ending():
     sys.exit()
 
 
+class Game_over(pygame.sprite.Sprite):
+    def __init__(self, *groups):
+        super().__init__(*groups)
+        self.image = pygame.image.load('data/10.jpg')
+        self.image = pygame.transform.scale(self.image, (1400, 800))
+        self.rect = self.image.get_rect()
+        self.rect.x = -1400
+        self.rect.y = 0
+        self.v = 50
+
+    def update(self, *args):
+        self.rect = self.rect.move(self.v, 0)
+        if self.rect.x == 0 and self.rect.y == 0:
+            self.v = 0
+
+
 def intro():
     intro_screen = pygame.image.load('data/pixel_mando (2).jpg')
     intro_screen = pygame.transform.scale(intro_screen, (width, height))
@@ -48,6 +64,7 @@ def intro():
                 if exit_text_rect.collidepoint(event.pos):
                     ending()
                 elif game_text_rect.collidepoint(event.pos):
+                    pygame.mixer.music.play()
                     return
 
 
@@ -142,12 +159,13 @@ class Player(pygame.sprite.Sprite):
         if pygame.sprite.spritecollideany(self, enemy_bullets_group):
             if self.hp == 1:
                 pygame.sprite.Sprite.remove(self, player_group)
-                ending()
+                Game_over(all_sprites, game_over)
+                pygame.mixer.music.stop()
             else:
                 self.hp -= 1
             playerdamagesound.play()
         elif pygame.sprite.spritecollideany(self, yoda_group):
-            #win
+            win(LEVEL)
             ending()
         if keys[pygame.K_w] and self.y != 0 and (self.level[self.y - 1][self.x] == 'O' or
                                                  self.level[self.y - 1][self.x] == ','):
@@ -310,7 +328,15 @@ def create_level(filename):
     return player
 
 
+def win(lvl):
+    level_running = False
+    lvl = lvl + 1
+    intro()
+    player = create_level(f'level{str(lvl)}.txt')
+
+
 LEVEL = 1
+LEVEL_RUNNING = True
 pygame.init()
 size = width, height = 1400, 800
 tile_width = 100
@@ -326,6 +352,7 @@ walls_group = pygame.sprite.Group()
 floors_group = pygame.sprite.Group()
 player_group = pygame.sprite.Group()
 bullets_group = pygame.sprite.Group()
+game_over = pygame.sprite.Group()
 yoda_group = pygame.sprite.Group()
 enemy_bullets_group = pygame.sprite.Group()
 player_bullets_group = pygame.sprite.Group()
@@ -336,27 +363,31 @@ playerdamagesound = pygame.mixer.Sound('data/data_sounds/mandodeath.mp3')
 pygame.mixer.music.load('data/data_sounds/backgroundmusic.mp3')
 MANDO_MOVE_SPRITES = ['data/mando_00.png', 'data/mando_04.png', 'data/mando_05.png', 'data/mando_06.png']
 # try:
-intro()
-player = create_level(LEVEL)
 while True:
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            ending()
-        if event.type == pygame.MOUSEBUTTONDOWN:
-            player.shoot()
-    for sprite in all_sprites:
-        camera.apply(sprite)
-    screen.fill('black')
-    tiles_group.draw(screen)
-    player_group.draw(screen)
-    enemy_group.draw(screen)
-    bullets_group.draw(screen)
-    yoda_group.draw(screen)
-    enemy_group.update()
-    player_group.update()
-    bullets_group.update()
-    camera.update(player)
-    pygame.display.flip()
-    clock.tick(FPS)
+    intro()
+    player = create_level(f'level{str(LEVEL)}.txt')
+    while LEVEL_RUNNING:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                LEVEL_RUNNING = False
+                ending()
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                player.shoot()
+        for sprite in all_sprites:
+            camera.apply(sprite)
+        screen.fill('black')
+        tiles_group.draw(screen)
+        player_group.draw(screen)
+        enemy_group.draw(screen)
+        bullets_group.draw(screen)
+        game_over.draw(screen)
+        yoda_group.draw(screen)
+        enemy_group.update()
+        player_group.update()
+        bullets_group.update()
+        game_over.update()
+        camera.update(player)
+        pygame.display.flip()
+        clock.tick(FPS)
 #except:
 #    ending()
